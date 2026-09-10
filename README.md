@@ -1,38 +1,55 @@
 # Vakit · Günlük Ritim PWA
 
-Namaz vakitlerini merkeze alan sade bir günlük ritim uygulaması. Varsayılan konum **Etimesgut / Ankara**. Vakitler her gün sunucudan alınır; konum değişince günün planı ve push bildirimleri yeniden hesaplanır.
+Namaz vakitlerini merkeze alan sade günlük ritim uygulaması. Varsayılan konum **Etimesgut / Ankara**. Sabah uyanış, namaz vakitleri, yürüyüş/bisiklet, kahvaltı, şekerleme ve Pomodoro akışını tek yerde toplar.
 
-## İçerik
-- Sabah uyanış: **güneşten 20 dakika önce** (ayarlanabilir)
-- Sabah namazı sonrası, güneş doğunca yürüyüş/bisiklet başlangıç bildirimi
-- Aktivite bitimine 5 dakika kala ve bitişte bildirim
-- Kahvaltı önerileri ve “başka öner” akışı
-- Öğle, ikindi, akşam, yatsı için 5 dakika önceden bildirim
-- Öğle vakti çevresinde şekerleme yerleştirmeyen kişisel koruma aralığı
-- Gece uykusu kısa kaldığında 20 dakikayı “yeterli telafi” saymayan uyku borcu uyarısı
-- 25/5 ve 50/10 Pomodoro
-- Gün sonu özet ekranı
-- Tek dokunuşla izin günü: iş bildirimleri kapanır
-- İlçe/il değişikliği: namaz vakitleri ve bildirim planı yenilenir
-- Veriler tarayıcı localStorage'ında; hesap/giriş yok
+## Cloudflare mimarisi
 
-## iPhone PWA ve bildirim
-Apple tarafında güvenilir arka plan bildirimi için uygulamanın **Safari → Paylaş → Ana Ekrana Ekle** ile kurulması ve bildirim izninin PWA içinden kullanıcı dokunuşuyla verilmesi gerekir. Yalnızca `setTimeout`/JavaScript zamanlayıcıları, uygulama tamamen kapalıyken güvenilir değildir; bu yüzden projede standart Web Push sunucusu vardır.
+Bu sürüm Cloudflare için hazırlanmıştır:
 
-## Çalıştırma
+- **Cloudflare Worker**: API ve Web Push gönderimi
+- **Static Assets**: `public/` içindeki PWA arayüzü
+- **Cloudflare D1**: push abonelikleri, zamanlanmış olaylar, VAPID anahtarı ve namaz vakti cache'i
+- **Cron Trigger**: her dakika zamanı gelen bildirimleri kontrol eder
+
+Eski Express/Node sunucusu kaldırılmıştır. Railway/Render gerektirmez.
+
+## Cloudflare panelinde kurulum
+
+1. Cloudflare hesabında **Workers & Pages** bölümüne gir.
+2. Yeni bir Worker oluşturup GitHub repository olarak `dgdfurkan/PushNot` seç.
+3. Repo kök dizinini kullan. Wrangler ayarı `wrangler.jsonc` dosyasındadır.
+4. Cloudflare panelinden bir **D1 Database** oluştur. Önerilen ad: `pushnot-db`.
+5. Worker > **Settings > Bindings** bölümünden D1 binding ekle:
+   - Variable / Binding name: `DB`
+   - Database: oluşturduğun `pushnot-db`
+6. Deploy/redeploy et.
+7. Worker adresinde `/api/health` aç. `{"ok":true,"runtime":"cloudflare-worker"...}` görürsen backend çalışıyor.
+8. Ana sayfayı iPhone Safari'de aç, **Paylaş > Ana Ekrana Ekle** yap.
+9. Ana ekrandaki PWA'yı açıp **Bildirimleri Aç** ve ardından **Test bildirimi gönder** butonunu kullan.
+
+> Worker ilk API isteğinde gerekli D1 tablolarını ve VAPID anahtarlarını otomatik oluşturur. Ayrı SQL çalıştırman gerekmez.
+
+## Bildirim akışı
+
+- Uyanış: güneşten varsayılan 20 dakika önce
+- Sabah hareketi: güneş doğduktan hemen sonra
+- Öğle, ikindi, akşam ve yatsı: 5 dakika önce
+- Şekerleme ve iş bildirimi: uygulamadaki günlük plana göre
+- Aktivite bitimine 5 dakika kala ve bitişte: aktivite başlatıldığında planlanır
+
+## iPhone notu
+
+iOS'ta Web Push için siteyi yalnızca Safari sekmesinde açık tutmak yetmez. PWA'yı **Ana Ekrana Ekle** ile kurup bildirim iznini ana ekrandan açılan uygulama içinden vermelisin.
+
+## Namaz vakitleri
+
+Konum Open-Meteo geocoding ile çözülür; namaz vakitleri AlAdhan üzerinden `method=13` Türkiye/Diyanet hesap yöntemiyle istenir. Uygulama servis erişilemezse örnek veriyi açıkça önizleme olarak işaretler.
+
+## Yerel geliştirme
+
 ```bash
 npm install
-npm start
+npm run dev
 ```
-Sonra `http://localhost:3000`.
 
-## Production
-HTTPS zorunludur. Tek servis olarak Node sunucusunu Railway/Fly.io/Render benzeri **uyumayan** bir Node hostuna koyabilirsin. Push sunucusunun 24/7 çalışması, dakik bildirimin güvenilirliği için önemlidir. Kalıcı disk/volume vermezsen deploy/restart sonrası push aboneliğini yeniden açmak gerekebilir.
-
-`DATA_DIR` ortam değişkenini kalıcı bir volume dizinine (ör. `/data`) bağlamak önerilir. İlk çalıştırmada VAPID anahtarları otomatik üretilip bu dizinde saklanır.
-
-## Namaz verisi
-Sunucu konumu Open-Meteo geocoding ile bulur ve AlAdhan üzerinden `method=13` ile Türkiye/Diyanet hesap yöntemini ister. Üretime almadan önce kullandığın kaynağın Diyanet'in yayınladığı vakitlerle birkaç gün karşılaştırılması tavsiye edilir; üçüncü taraf servisler erişilemezse uygulama önizleme verisini açıkça “önizleme” olarak işaretler ve bunu gerçek vakit diye gizlemez.
-
-## Uyku mantığı
-Uygulama, örneğin 02:15 yatış ve 06:00 uyanış gibi çok kısa bir ana uyku oluşursa 20 dakikalık şekerlemeyi yeterli göstermemeye çalışır. Ana uyku 5,5 saatin altındaysa 90 dakikalık telafi bloğu önerir. Bu tıbbi tedavi değildir; kalıcı gündüz uykululuğu, horlama/nefes kesilmesi veya yeterli süreye rağmen dinlenememe sürerse klinik değerlendirme gerekir.
+Cloudflare D1 binding'i yerel ortamda da gerektiği için gerçek API/push testi için Wrangler D1 ayarı gerekir.
