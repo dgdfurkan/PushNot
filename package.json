@@ -1,14 +1,14 @@
 {
   "name": "vakit-gunluk-ritim",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "private": true,
   "type": "module",
   "scripts": {
-    "start": "node server.js",
-    "dev": "NODE_ENV=development node server.js"
+    "dev": "wrangler dev",
+    "start": "wrangler dev",
+    "deploy": "wrangler deploy"
   },
-  "dependencies": {
-    "express": "^5.1.0",
-    "web-push": "^3.6.7"
+  "devDependencies": {
+    "wrangler": "^4.0.0"
   }
 }
