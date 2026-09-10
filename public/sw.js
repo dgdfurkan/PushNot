@@ -1,7 +1,7 @@
-const CACHE='vakit-shell-v1';
-const CORE=['/','/index.html','/styles.css','/app.js','/manifest.webmanifest','/icons/icon-192.png','/icons/icon-512.png'];
+const CACHE='vakit-shell-v2';
+const CORE=['/','/index.html','/styles.css','/app.js','/manifest.webmanifest','/icons/icon.svg'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(CORE)).then(()=>self.skipWaiting()))});
-self.addEventListener('activate',e=>{e.waitUntil(self.clients.claim())});
+self.addEventListener('activate',e=>{e.waitUntil(Promise.all([self.clients.claim(),caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k))))]))});
 self.addEventListener('fetch',e=>{
   const u=new URL(e.request.url);
   if(u.origin===location.origin && e.request.method==='GET'){
@@ -11,7 +11,7 @@ self.addEventListener('fetch',e=>{
 self.addEventListener('push',e=>{
   let data={title:'Vakit',body:'Günlük planında yeni bir adım var.',tag:'vakit'};
   try{data={...data,...e.data.json()}}catch{}
-  e.waitUntil(self.registration.showNotification(data.title,{body:data.body,tag:data.tag||'vakit',icon:'/icons/icon-192.png',badge:'/icons/icon-192.png',data:data.data||{},renotify:true}));
+  e.waitUntil(self.registration.showNotification(data.title,{body:data.body,tag:data.tag||'vakit',icon:'/icons/icon.svg',data:data.data||{},renotify:true}));
 });
 self.addEventListener('notificationclick',e=>{
   e.notification.close();
