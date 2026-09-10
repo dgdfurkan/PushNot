@@ -40,7 +40,7 @@
     if(!input||!box||!img)return;
     const url=input.value.trim();
     if(!url){box.classList.add('hidden');img.removeAttribute('src');return;}
-    try{new URL(url);img.src=url;box.classList.remove('hidden')}catch{box.classList.add('hidden')}
+    try{const parsed=new URL(url);if(!/^https?:$/.test(parsed.protocol))throw new Error();img.src=parsed.toString();box.classList.remove('hidden')}catch{box.classList.add('hidden')}
   }
 
   async function loadReminders(){
@@ -83,13 +83,18 @@
     }catch(e){toast(e.message||'Silinemedi.');}
   }
 
+  function openRequestedView(){
+    const view=new URLSearchParams(location.search).get('view');
+    if(view==='reminders')document.querySelector('[data-nav="reminders"]')?.click();
+  }
+
   function bind(){
     const form=$('#reminderForm');if(!form)return;
     form.addEventListener('submit',createReminder);
     $('#reminderImage')?.addEventListener('input',updateImagePreview);
     $('#reminderList')?.addEventListener('click',e=>{const b=e.target.closest('[data-reminder-delete]');if(b)deleteReminder(b.dataset.reminderDelete)});
     document.querySelector('[data-nav="reminders"]')?.addEventListener('click',loadReminders);
-    setDefaults();loadReminders();
+    setDefaults();openRequestedView();loadReminders();
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bind);else bind();
 })();
