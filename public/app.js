@@ -28,6 +28,11 @@ function addMin(d,m){return new Date(d.getTime()+m*60000)}
 function fmt(d){return new Intl.DateTimeFormat('tr-TR',{hour:'2-digit',minute:'2-digit',hour12:false}).format(d)}
 function clean(t){return String(t||'').replace(/\s*\(.+\)$/,'').slice(0,5)}
 function mins(a,b){return Math.round((b-a)/60000)}
+function countdownLabel(target,now=new Date()){
+  const total=Math.max(0,Math.ceil((target-now)/1000));
+  const h=Math.floor(total/3600),m=Math.floor((total%3600)/60),s=total%60;
+  return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')} SONRA`;
+}
 function demoPrayer(){return {Imsak:'04:52',Fajr:'04:52',Sunrise:'06:20',Dhuhr:'12:50',Asr:'16:26',Maghrib:'19:14',Isha:'20:38',demo:true}}
 
 async function loadPrayer(){
@@ -75,12 +80,16 @@ function nextEvents(){
   return [
     {t:x.wake,title:'Uyanma zamanı',text:`Güneş ${clean(p.Sunrise)} · sabah namazı için kalk.`,icon:'sun'},
     {t:x.activityStart,title:'Sabah hareketi',text:state.settings.activity==='walk'?'30 dk yürüyüş zamanı.':'40 dk bisiklet zamanı.',icon:state.settings.activity==='walk'?'walk':'bike'},
-    ...[['Dhuhr','Öğle'],['Asr','İkindi'],['Maghrib','Akşam'],['Isha','Yatsı']].map(([k,n])=>({t:addMin(parseTime(clean(p[k])),-5),title:`${n} namazı yaklaşıyor`,text:`Vakit ${clean(p[k])} · 5 dakika kaldı.`,icon:'pray'}))
+    ...[['Dhuhr','Öğle'],['Asr','İkindi'],['Maghrib','Akşam'],['Isha','Yatsı']].map(([k,n])=>({t:parseTime(clean(p[k])),title:`${n} namazı yaklaşıyor`,text:`Vakit ${clean(p[k])}.`,icon:'pray'}))
   ].sort((a,b)=>a.t-b.t);
 }
 function renderHero(){
-  const now=new Date(),ev=nextEvents(),e=ev.find(x=>x.t>now)||ev.at(-1),diff=mins(now,e.t);
-  $('#heroIcon').innerHTML=ICONS[e.icon]||ICONS.pray;$('#heroTitle').textContent=e.title;$('#heroText').textContent=e.text;$('#heroTime').textContent=fmt(e.t);$('#heroEyebrow').textContent=diff>=0?`${diff} DK SONRA`:'BUGÜNÜN SON ADIMI';
+  const now=new Date(),ev=nextEvents(),future=ev.find(x=>x.t>now),e=future||ev.at(-1);
+  $('#heroIcon').innerHTML=ICONS[e.icon]||ICONS.pray;
+  $('#heroTitle').textContent=e.title;
+  $('#heroText').textContent=e.text;
+  $('#heroTime').textContent=fmt(e.t);
+  $('#heroEyebrow').textContent=future?countdownLabel(e.t,now):'BUGÜNÜN SON ADIMI';
 }
 
 function renderTimeline(){
@@ -200,6 +209,7 @@ async function init(){
   if(state.settings.workDayDate!==todayKey()){state.settings.workDay=true;state.settings.workDayDate=todayKey();saveSettings()}
   if('serviceWorker'in navigator)await navigator.serviceWorker.register('/sw.js').catch(()=>{});
   bind();notificationStatus();renderFocus();renderSettings();renderStats();await loadPrayer();
-  setInterval(()=>{if(state.prayer){renderHero();renderPrayer()}},30000);
+  setInterval(()=>{if(state.prayer)renderHero()},1000);
+  setInterval(()=>{if(state.prayer)renderPrayer()},30000);
 }
 init();
