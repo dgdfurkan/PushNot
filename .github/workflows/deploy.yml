@@ -31,7 +31,10 @@ jobs:
       - name: Validate JavaScript syntax
         run: |
           node --check public/app.js
+          node --check public/reminders.js
+          node --check public/sw.js
           node --check src/worker.js
+          node --check src/reminders.js
 
       - name: Verify Cloudflare credentials
         env:
