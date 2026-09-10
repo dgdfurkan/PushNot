@@ -1,3 +1,5 @@
+import { handleReminderApi, tickReminders } from './reminders.js';
+
 const te = new TextEncoder();
 
 const j = (data, status = 200) => new Response(JSON.stringify(data), {
@@ -119,7 +121,6 @@ function addMinutes(d, m) { return new Date(d.getTime() + m * 60000); }
 function safeEvent(e, kind = 'manual') { return { at: new Date(e.at).toISOString(), title: String(e.title || 'Vakit').slice(0, 80), body: String(e.body || '').slice(0, 180), tag: String(e.tag || 'vakit').slice(0, 80), kind }; }
 
 async function getPrayerTimes(env, { district = 'Etimesgut', city = 'Ankara', country = 'TR', date = trDateKey() }) {
-  // v2 invalidates cached values that were calculated with school=1 (late Asr).
   const cacheKey = ['v2-school0', district, city, country, date].join('|').toLocaleLowerCase('tr');
   const cached = await env.DB.prepare('SELECT payload FROM prayer_cache WHERE cache_key=?').bind(cacheKey).first();
   if (cached?.payload) return JSON.parse(cached.payload);
@@ -135,8 +136,6 @@ async function getPrayerTimes(env, { district = 'Etimesgut', city = 'Ankara', co
   if (!loc) throw new Error('Konum bulunamadı');
 
   const [y, m, d] = date.split('-');
-  // method=13 is the Turkey/Diyanet calculation preset. school=0 uses the standard Asr shadow factor;
-  // school=1 was the source of the roughly one-hour-late Asr values seen in Ankara.
   const url = `https://api.aladhan.com/v1/timings/${d}-${m}-${y}?latitude=${loc.latitude}&longitude=${loc.longitude}&method=13&school=0&timezonestring=Europe%2FIstanbul`;
   const r = await fetch(url);
   if (!r.ok) throw new Error('Namaz vakti servisine ulaşılamadı');
@@ -236,6 +235,9 @@ async function api(request, env) {
   await ensureDb(env);
   const u = new URL(request.url);
 
+  const reminderResponse = await handleReminderApi(request, env);
+  if (reminderResponse) return reminderResponse;
+
   if (request.method === 'GET' && u.pathname === '/api/health') return j({ ok: true, runtime: 'cloudflare-worker', time: new Date().toISOString() });
   if (request.method === 'GET' && u.pathname === '/api/vapid-public-key') return j({ publicKey: (await ensureVapid(env)).publicKey });
   if (request.method === 'GET' && u.pathname === '/api/prayer-times') {
@@ -289,6 +291,7 @@ export default {
       await ensureDb(env);
       await refreshHorizons(env);
       await tick(env);
+      await tickReminders(env, sendPush);
     })());
   }
 };
