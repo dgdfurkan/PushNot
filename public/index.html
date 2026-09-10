@@ -10,6 +10,7 @@
   <link rel="manifest" href="/manifest.webmanifest" />
   <link rel="apple-touch-icon" href="/icons/icon-192.png" />
   <link rel="stylesheet" href="/styles.css" />
+  <link rel="stylesheet" href="/reminders.css" />
   <title>Vakit · Günlük Ritim</title>
 </head>
 <body>
@@ -83,6 +84,32 @@
         </article>
       </section>
 
+      <section class="page" data-page="reminders">
+        <section class="page-heading"><div><div class="eyebrow">HATIRLATMALAR</div><h1>İstediğin anda sana gelsin.</h1><p>Tarih, saat, başlık ve açıklamayı seç. Bildirim o dakikada gönderilsin.</p></div></section>
+        <div class="reminder-layout">
+          <article class="card reminder-composer">
+            <div class="section-top"><div><div class="eyebrow">YENİ HATIRLATMA</div><h2>Bildirim oluştur</h2></div><span class="soft-tag">Özel push</span></div>
+            <form class="reminder-form" id="reminderForm">
+              <div class="reminder-date-grid">
+                <label class="field-label"><span>Tarih</span><input type="date" id="reminderDate" required /></label>
+                <label class="field-label"><span>Saat</span><input type="time" id="reminderTime" step="60" required /></label>
+              </div>
+              <label class="field-label"><span>Başlık <small>80 karakter</small></span><input type="text" id="reminderTitle" maxlength="80" placeholder="Örn. Annemi ara" required /></label>
+              <label class="field-label"><span>Açıklama <small>180 karakter</small></span><textarea id="reminderBody" maxlength="180" placeholder="Bildirimde görünecek açıklama..."></textarea></label>
+              <label class="field-label"><span>Görsel URL <small>opsiyonel</small></span><input type="url" id="reminderImage" placeholder="https://.../gorsel.jpg" inputmode="url" /></label>
+              <div class="reminder-image-preview hidden" id="reminderImagePreview"><img alt="Bildirim görseli önizlemesi" /></div>
+              <label class="field-label"><span>Dokununca açılacak bağlantı / video <small>opsiyonel</small></span><input type="url" id="reminderUrl" placeholder="https://..." inputmode="url" /></label>
+              <div class="reminder-media-note"><svg viewBox="0 0 24 24"><path d="M12 3v10m0 4v.01M5.4 20h13.2a2 2 0 0 0 1.7-3L13.7 5.7a2 2 0 0 0-3.4 0L3.7 17a2 2 0 0 0 1.7 3Z"/></svg><span>PNG/JPG/WebP/GIF bağlantısı ekleyebilirsin. Tarayıcı destekliyorsa bildirimde görsel çıkar. iPhone Web Push GIF animasyonu veya video oynatmayı garanti etmez; video bağlantısına dokununca açılır.</span></div>
+              <button class="primary-btn reminder-save" id="saveReminder" type="submit"><svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg><span>Hatırlatmayı kaydet</span></button>
+            </form>
+          </article>
+          <article class="card reminder-list-card">
+            <div class="reminder-list-head"><div><div class="eyebrow">YAKLAŞANLAR</div><h2>Planlanan bildirimler</h2></div><span class="soft-tag">D1</span></div>
+            <div class="reminder-list" id="reminderList"><div class="reminder-empty">Hatırlatmalar yükleniyor…</div></div>
+          </article>
+        </div>
+      </section>
+
       <section class="page" data-page="summary">
         <section class="page-heading"><div><div class="eyebrow">GÜN SONU</div><h1>Bugünün özeti</h1><p>Yalnızca gerçekten kaydettiğin hareket ve odak süreleri.</p></div></section>
         <div class="summary-grid"><article class="wrapped-card purple"><span>ODAK</span><strong id="wrapFocus">0 dk</strong><p>bugün odaklandığın süre</p></article><article class="wrapped-card lime"><span>HAREKET</span><strong id="wrapActivity">Henüz yok</strong><p id="wrapActivitySub">Başlattığın yürüyüş veya bisiklet burada görünür.</p></article><article class="wrapped-card lilac"><span>RİTİM</span><strong id="wrapPrayer">5 vakit</strong><p>Hatırlatmalar planlanır; namazı kıldığın varsayılmaz.</p></article></div>
@@ -105,11 +132,13 @@
       <button class="nav-item active" data-nav="home"><svg viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1Z"/></svg><span>Bugün</span></button>
       <button class="nav-item" data-nav="focus"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2M9 2h6"/></svg><span>Odak</span></button>
       <button class="nav-item" data-nav="activity"><svg viewBox="0 0 24 24"><circle cx="13" cy="4" r="2"/><path d="m10 22 1-6-3-3 3-5 4 2 3 4m-7 2 4 2 2 4M8 13l-4 2"/></svg><span>Hareket</span></button>
+      <button class="nav-item" data-nav="reminders"><svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg><span>Hatırlat</span></button>
       <button class="nav-item" data-nav="summary"><svg viewBox="0 0 24 24"><path d="M5 20V10m7 10V4m7 16v-7"/></svg><span>Özet</span></button>
       <button class="nav-item" data-nav="settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2.8 2.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6v.2h-4V21a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1L4.2 17l.1-.1A1.7 1.7 0 0 0 4.6 15 1.7 1.7 0 0 0 3 14H2.8v-4H3a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9L4.2 7 7 4.2l.1.1A1.7 1.7 0 0 0 9 4.6 1.7 1.7 0 0 0 10 3V2.8h4V3a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1L19.8 7l-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.6 1h.2v4H21a1.7 1.7 0 0 0-1.6 1Z"/></svg><span>Ayarlar</span></button>
     </nav>
   </div>
   <div class="toast" id="toast"></div>
   <script src="/app.js" defer></script>
+  <script src="/reminders.js" defer></script>
 </body>
 </html>
