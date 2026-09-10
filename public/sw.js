@@ -1,5 +1,5 @@
-const CACHE='vakit-shell-v3';
-const CORE=['/','/index.html','/styles.css','/app.js','/manifest.webmanifest','/icons/icon.svg'];
+const CACHE='vakit-shell-v4';
+const CORE=['/','/index.html','/styles.css','/reminders.css','/app.js','/reminders.js','/manifest.webmanifest','/icons/icon.svg'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(CORE)).then(()=>self.skipWaiting()))});
 self.addEventListener('activate',e=>{e.waitUntil(Promise.all([self.clients.claim(),caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k))))]))});
 self.addEventListener('fetch',e=>{
@@ -11,12 +11,27 @@ self.addEventListener('fetch',e=>{
 self.addEventListener('push',e=>{
   let data={title:'Vakit',body:'Günlük planında yeni bir adım var.',tag:'vakit'};
   try{data={...data,...e.data.json()}}catch{}
-  e.waitUntil(self.registration.showNotification(data.title,{body:data.body,tag:data.tag||'vakit',icon:'/icons/icon.svg',data:data.data||{},renotify:true}));
+  const options={body:data.body||'',tag:data.tag||'vakit',icon:'/icons/icon.svg',renotify:true,data:{url:data.url||'/'}};
+  if(data.image)options.image=data.image;
+  e.waitUntil(self.registration.showNotification(data.title||'Vakit',options));
 });
 self.addEventListener('notificationclick',e=>{
   e.notification.close();
-  e.waitUntil(clients.matchAll({type:'window',includeUncontrolled:true}).then(list=>{
-    for(const c of list){if('focus'in c)return c.focus()}
-    return clients.openWindow('/');
-  }));
+  const raw=e.notification.data?.url||'/';
+  let target='/';
+  try{target=new URL(raw,self.location.origin).href}catch{}
+  e.waitUntil((async()=>{
+    const list=await clients.matchAll({type:'window',includeUncontrolled:true});
+    const sameOrigin=target.startsWith(self.location.origin);
+    if(sameOrigin){
+      for(const c of list){
+        if(c.url.startsWith(self.location.origin)&&'focus'in c){
+          await c.focus();
+          if('navigate'in c)await c.navigate(target);
+          return;
+        }
+      }
+    }
+    return clients.openWindow(target);
+  })());
 });
