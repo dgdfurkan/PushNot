@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <meta name="theme-color" content="#f6f4ef" />
+  <meta name="theme-color" content="#f6f7f9" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="apple-mobile-web-app-title" content="Vakit" />
@@ -15,207 +15,101 @@
 <body>
   <div class="app-shell">
     <header class="topbar">
-      <div>
-        <div class="eyebrow" id="todayLabel">Bugün</div>
-        <h1>Vakit</h1>
-      </div>
-      <button class="icon-btn" id="quickDayMode" aria-label="İş gününü değiştir" title="İş günü / izin günü">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m-9 0h10a3 3 0 0 1 3 3v8a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3v-8a3 3 0 0 1 3-3Zm2 0v14m6-14v14"/></svg>
+      <button class="brand" data-goto="home" aria-label="Bugüne dön">
+        <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.5"/><path d="M12 2v2.2M12 19.8V22M4.9 4.9l1.6 1.6m11 11 1.6 1.6M2 12h2.2M19.8 12H22M4.9 19.1l1.6-1.6m11-11 1.6-1.6"/></svg></span>
+        <span>Vakit <em>Günlük Ritim</em></span>
       </button>
+      <div class="top-tools">
+        <button class="location-button" data-goto="settings"><svg viewBox="0 0 24 24"><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg><span id="locationTop">Etimesgut, Ankara</span></button>
+        <button class="icon-btn" id="quickDayMode" aria-label="İş günü / izin günü"><svg viewBox="0 0 24 24"><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m-9 0h10a3 3 0 0 1 3 3v8a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3v-8a3 3 0 0 1 3-3Z"/></svg></button>
+      </div>
     </header>
 
     <main>
       <section class="page active" data-page="home">
-        <div class="status-strip" id="statusStrip">
-          <span class="status-dot"></span>
-          <span id="statusText">Plan hazırlanıyor…</span>
-        </div>
+        <div class="date-line"><span id="todayLabel">Bugün</span><span class="status-inline"><i class="status-dot"></i><span id="statusText">Plan hazırlanıyor…</span></span></div>
+        <section class="page-heading home-heading"><div><div class="eyebrow">BUGÜNÜN RİTMİ</div><h1>Günü akışına bırakma.</h1><p>Namaz, uyku, hareket ve odak tek ritimde.</p></div></section>
 
-        <article class="hero-card" id="heroCard">
-          <div class="hero-icon" id="heroIcon"></div>
-          <div class="hero-copy">
-            <div class="eyebrow" id="heroEyebrow">Sıradaki</div>
-            <h2 id="heroTitle">Vakitler yükleniyor</h2>
-            <p id="heroText">Etimesgut için günün ritmi hazırlanıyor.</p>
-          </div>
-          <div class="hero-time" id="heroTime">--:--</div>
+        <article class="next-card" id="heroCard">
+          <div class="next-top"><div><div class="eyebrow" id="heroEyebrow">SIRADAKİ</div><h2 id="heroTitle">Vakitler yükleniyor</h2><p id="heroText">Etimesgut için günün ritmi hazırlanıyor.</p></div><div class="next-icon" id="heroIcon"></div></div>
+          <div class="next-time" id="heroTime">--:--</div>
+          <div class="next-footer"><span>Plan otomatik güncellenir</span><span id="heroLocation">Etimesgut · Ankara</span></div>
         </article>
 
-        <section class="section-head">
-          <div>
-            <div class="eyebrow">Namaz vakitleri</div>
-            <h3 id="locationTitle">Etimesgut, Ankara</h3>
-          </div>
-          <button class="text-btn" data-goto="settings">Değiştir</button>
-        </section>
+        <section class="section-head prayer-head"><div><div class="eyebrow">NAMAZ VAKİTLERİ</div><h2 id="locationTitle">Etimesgut, Ankara</h2></div><button class="text-btn" data-goto="settings">Konumu değiştir</button></section>
         <div class="prayer-grid" id="prayerGrid"></div>
 
-        <section class="section-head compact">
-          <div>
-            <div class="eyebrow">Bugünün akışı</div>
-            <h3>Az ama net</h3>
+        <div class="home-grid">
+          <article class="card timeline-card">
+            <div class="section-top"><div><div class="eyebrow">BUGÜNÜN AKIŞI</div><h2>Az ama net.</h2></div><span class="soft-tag">Canlı plan</span></div>
+            <div class="timeline" id="timeline"></div>
+          </article>
+          <div class="side-stack">
+            <article class="card sleep-card" id="sleepCard">
+              <div class="section-top"><div class="round-icon lilac"><svg viewBox="0 0 24 24"><path d="M20 15.2A8.5 8.5 0 0 1 8.8 4a8.5 8.5 0 1 0 11.2 11.2Z"/></svg></div><span class="soft-tag">Uyku</span></div>
+              <div class="eyebrow">UYKU DENGESİ</div><h2 id="sleepTitle">Hesaplanıyor</h2><p id="sleepText">Gece uykusu ve gerekiyorsa telafi bloğu burada görünecek.</p><button class="secondary-btn compact-btn" id="napAction">Planla</button>
+            </article>
+            <article class="card breakfast-card">
+              <div class="section-top"><div class="round-icon yellow"><svg viewBox="0 0 24 24"><path d="M6 3v7m3-7v7M6 7h3m-1.5 3v11M16 3v18m0-18c3 2 4 6 0 9"/></svg></div><button class="icon-btn small" id="shuffleBreakfast" aria-label="Başka kahvaltı öner"><svg viewBox="0 0 24 24"><path d="M16 3h5v5m0-5-6.5 6.5M4 7h3.2a4 4 0 0 1 3.1 1.5L15 14.5A4 4 0 0 0 18.1 16H21m0 0v5m0-5-4 4M4 17h3.2a4 4 0 0 0 3.1-1.5l1-1.3"/></svg></button></div>
+              <div class="eyebrow">DÖNÜŞTE KAHVALTI</div><h2 id="breakfastTitle">Yumurta + peynir + domates</h2><p id="breakfastText">Yanına su; ekmek varsa küçük porsiyon.</p>
+            </article>
+            <button class="movement-teaser" data-goto="activity"><span class="round-icon green"><svg viewBox="0 0 24 24"><circle cx="13" cy="4" r="2"/><path d="m10 22 1-6-3-3 3-5 4 2 3 4m-7 2 4 2 2 4M8 13l-4 2"/></svg></span><span><b>Sabah hareketi</b><small>Yürüyüş veya bisikletini başlat</small></span><svg viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></button>
           </div>
-        </section>
-        <div class="timeline" id="timeline"></div>
-
-        <article class="sleep-card" id="sleepCard">
-          <div class="card-icon moon">
-            <svg viewBox="0 0 24 24"><path d="M20 15.2A8.5 8.5 0 0 1 8.8 4a8.5 8.5 0 1 0 11.2 11.2Z"/></svg>
-          </div>
-          <div class="grow">
-            <div class="eyebrow">Uyku dengesi</div>
-            <h3 id="sleepTitle">Hesaplanıyor</h3>
-            <p id="sleepText">Gece uykusu ve gerekiyorsa telafi bloğu burada görünecek.</p>
-          </div>
-          <button class="pill-btn" id="napAction">Planla</button>
-        </article>
-
-        <article class="activity-card" id="activityCard">
-          <div class="activity-main">
-            <div>
-              <div class="eyebrow">Sabah hareketi</div>
-              <h3>Yürü ya da bisiklete çık</h3>
-              <p>Namazdan sonra güneş doğunca başlat.</p>
-            </div>
-            <div class="segmented" role="group" aria-label="Aktivite seçimi">
-              <button class="seg active" data-activity="walk">Yürüyüş · 30 dk</button>
-              <button class="seg" data-activity="bike">Bisiklet · 40 dk</button>
-            </div>
-          </div>
-          <button class="primary-btn" id="startActivity">Aktiviteyi başlat</button>
-          <div class="activity-live hidden" id="activityLive">
-            <div class="timer-big" id="activityTimer">30:00</div>
-            <div class="activity-actions">
-              <button class="secondary-btn" id="stopActivity">Bitir</button>
-            </div>
-          </div>
-        </article>
-
-        <article class="breakfast-card">
-          <div>
-            <div class="eyebrow">Dönüşte kahvaltı</div>
-            <h3 id="breakfastTitle">Yumurta + peynir + domates</h3>
-            <p id="breakfastText">Yanına su; ekmek varsa küçük porsiyon.</p>
-          </div>
-          <button class="icon-btn small" id="shuffleBreakfast" aria-label="Başka kahvaltı öner">
-            <svg viewBox="0 0 24 24"><path d="M16 3h5v5m0-5-6.5 6.5M4 7h3.2a4 4 0 0 1 3.1 1.5L15 14.5A4 4 0 0 0 18.1 16H21m0 0v5m0-5-4 4M4 17h3.2a4 4 0 0 0 3.1-1.5l1-1.3"/></svg>
-          </button>
-        </article>
+        </div>
       </section>
 
       <section class="page" data-page="focus">
-        <section class="page-title">
-          <div class="eyebrow">Odak</div>
-          <h2>Pomodoro</h2>
-          <p>Çalışma ve molayı gün sonu özetine otomatik ekler.</p>
-        </section>
-        <article class="focus-card">
-          <div class="focus-ring" id="focusRing">
-            <div>
-              <span id="focusModeLabel">Odak</span>
-              <strong id="focusTimer">25:00</strong>
-            </div>
-          </div>
-          <div class="segmented wide">
-            <button class="seg active" data-preset="25">25 / 5</button>
-            <button class="seg" data-preset="50">50 / 10</button>
-          </div>
-          <button class="primary-btn" id="focusToggle">Başlat</button>
-          <button class="secondary-btn" id="focusReset">Sıfırla</button>
-        </article>
-        <div class="stats-grid">
-          <div class="mini-stat"><span>Odak</span><strong id="todayFocus">0 dk</strong></div>
-          <div class="mini-stat"><span>Mola</span><strong id="todayBreak">0 dk</strong></div>
-          <div class="mini-stat"><span>Tur</span><strong id="todayRounds">0</strong></div>
+        <section class="page-heading"><div><div class="eyebrow">ODAK</div><h1>Pomodoro</h1><p>Tek seferde tek şey. Çalışma ve mola gün sonu özetine eklenir.</p></div></section>
+        <div class="focus-layout">
+          <article class="card focus-card">
+            <div class="section-top"><span class="eyebrow">POMODORO</span><span class="soft-tag" id="focusPresetTag">25 / 5</span></div>
+            <div class="focus-ring" id="focusRing"><div><span id="focusModeLabel">Odak</span><strong id="focusTimer">25:00</strong><small>Bir seferde bir şey.</small></div></div>
+            <div class="segmented wide"><button class="seg active" data-preset="25">25 / 5</button><button class="seg" data-preset="50">50 / 10</button></div>
+            <div class="focus-actions"><button class="primary-btn" id="focusToggle"><svg viewBox="0 0 24 24"><path d="m8 5 11 7-11 7Z"/></svg><span>Başlat</span></button><button class="secondary-btn reset-btn" id="focusReset">Sıfırla</button></div>
+          </article>
+          <article class="card focus-stats-card"><div class="eyebrow">BUGÜN</div><h2>Odak özeti</h2><div class="stats-grid"><div class="mini-stat"><span>Odak</span><strong id="todayFocus">0 dk</strong></div><div class="mini-stat"><span>Mola</span><strong id="todayBreak">0 dk</strong></div><div class="mini-stat"><span>Tur</span><strong id="todayRounds">0</strong></div></div><p class="muted-copy">Sayaç yalnızca sen başlattığında çalışır. Süreler cihazında tutulur.</p></article>
         </div>
       </section>
 
-      <section class="page" data-page="summary">
-        <section class="page-title">
-          <div class="eyebrow">Gün sonu</div>
-          <h2>Bugünün özeti</h2>
-          <p>Spotify Wrapped gibi, ama yalnızca gerçekten kaydettiğin veriler.</p>
-        </section>
-        <article class="wrapped-card warm">
-          <span>Bugün</span>
-          <strong id="wrapFocus">0 dk</strong>
-          <p>odak süresi</p>
-        </article>
-        <article class="wrapped-card sage">
-          <span>Hareket</span>
-          <strong id="wrapActivity">Henüz yok</strong>
-          <p id="wrapActivitySub">Başlattığın yürüyüş veya bisiklet burada görünür.</p>
-        </article>
-        <article class="wrapped-card lilac">
-          <span>Ritim</span>
-          <strong id="wrapPrayer">5 vakit planlandı</strong>
-          <p>Namaz için bildirim teslimi planlanır; kıldığın varsayılmaz.</p>
-        </article>
-        <article class="summary-list-card">
-          <div class="summary-row"><span>Planlanan yatış</span><strong id="summaryBed">--:--</strong></div>
-          <div class="summary-row"><span>Sabah uyanış</span><strong id="summaryWake">--:--</strong></div>
-          <div class="summary-row"><span>Şekerleme / telafi</span><strong id="summaryNap">--</strong></div>
-          <div class="summary-row"><span>İş durumu</span><strong id="summaryWork">İş günü</strong></div>
+      <section class="page" data-page="activity">
+        <section class="page-heading"><div><div class="eyebrow">HAREKET</div><h1>Sabahı bedeninle aç.</h1><p>Güneş doğduktan sonra yürüyüş ya da bisiklet. Süre bitmeden 5 dakika önce dönüş hatırlatması gelir.</p></div></section>
+        <article class="activity-card" id="activityCard">
+          <div class="activity-grid segmented" role="group" aria-label="Aktivite seçimi">
+            <button class="move-card lime seg active" data-activity="walk"><svg viewBox="0 0 24 24"><circle cx="13" cy="4" r="2"/><path d="m10 22 1-6-3-3 3-5 4 2 3 4m-7 2 4 2 2 4M8 13l-4 2"/></svg><span class="move-label">Yürüyüş</span><small>Temiz hava, sakin tempo.</small><span class="move-bottom"><b>30</b><em>dk</em><i>↗</i></span></button>
+            <button class="move-card lilac seg" data-activity="bike"><svg viewBox="0 0 24 24"><circle cx="5.5" cy="17.5" r="3.5"/><circle cx="18.5" cy="17.5" r="3.5"/><path d="M8 17.5 11 11h4l3.5 6.5M9.5 8.5h3M11 11l5 6.5M14.5 8.5h2"/></svg><span class="move-label">Bisiklet</span><small>Daha uzun, akışkan tempo.</small><span class="move-bottom"><b>40</b><em>dk</em><i>↗</i></span></button>
+          </div>
+          <button class="primary-btn movement-start" id="startActivity"><svg viewBox="0 0 24 24"><path d="m8 5 11 7-11 7Z"/></svg><span>Aktiviteyi başlat</span></button>
+          <div class="activity-live hidden" id="activityLive"><div><span class="eyebrow">DEVAM EDEN HAREKET</span><strong class="timer-big" id="activityTimer">30:00</strong><small>Bitime 5 dakika kala yavaştan dönüşe geçmen için bildirim gelir.</small></div><button class="secondary-btn inverse" id="stopActivity">Bitir</button></div>
         </article>
       </section>
 
+      <section class="page" data-page="summary">
+        <section class="page-heading"><div><div class="eyebrow">GÜN SONU</div><h1>Bugünün özeti</h1><p>Yalnızca gerçekten kaydettiğin hareket ve odak süreleri.</p></div></section>
+        <div class="summary-grid"><article class="wrapped-card purple"><span>ODAK</span><strong id="wrapFocus">0 dk</strong><p>bugün odaklandığın süre</p></article><article class="wrapped-card lime"><span>HAREKET</span><strong id="wrapActivity">Henüz yok</strong><p id="wrapActivitySub">Başlattığın yürüyüş veya bisiklet burada görünür.</p></article><article class="wrapped-card lilac"><span>RİTİM</span><strong id="wrapPrayer">5 vakit</strong><p>Hatırlatmalar planlanır; namazı kıldığın varsayılmaz.</p></article></div>
+        <article class="card summary-list-card"><div class="summary-row"><span>Planlanan yatış</span><strong id="summaryBed">--:--</strong></div><div class="summary-row"><span>Sabah uyanış</span><strong id="summaryWake">--:--</strong></div><div class="summary-row"><span>Şekerleme / telafi</span><strong id="summaryNap">--</strong></div><div class="summary-row"><span>İş durumu</span><strong id="summaryWork">İş günü</strong></div></article>
+      </section>
+
       <section class="page" data-page="settings">
-        <section class="page-title">
-          <div class="eyebrow">Ayarlar</div>
-          <h2>Bugünü kendine göre ayarla</h2>
-          <p>Şehir veya iş durumu değişince vakitler ve bildirimler yeniden hesaplanır.</p>
-        </section>
-
-        <article class="settings-card">
-          <div class="setting-row">
-            <div><strong>Bugün iş var mı?</strong><span>Kapalıysa iş bildirimleri gelmez.</span></div>
-            <button class="switch on" id="workToggle" aria-pressed="true"><span></span></button>
-          </div>
-          <div class="setting-row stacked">
-            <div><strong>Konum</strong><span>İlçe + il yaz; namaz vakitleri buna göre yenilenir.</span></div>
-            <div class="location-fields">
-              <input id="districtInput" value="Etimesgut" placeholder="İlçe" autocomplete="address-level2" />
-              <input id="cityInput" value="Ankara" placeholder="İl" autocomplete="address-level1" />
-            </div>
-            <button class="secondary-btn" id="saveLocation">Konumu güncelle</button>
-          </div>
-        </article>
-
-        <article class="settings-card">
-          <div class="setting-row stacked">
-            <div><strong>Bildirimler</strong><span>iPhone’da ana ekrana eklenmiş PWA olarak açıp izin vermelisin.</span></div>
-            <button class="primary-btn" id="enableNotifications">Bildirimleri aç</button>
-            <button class="secondary-btn" id="testNotification">Test bildirimi gönder</button>
-            <div class="note" id="notificationNote">İzin durumu kontrol ediliyor…</div>
-          </div>
-        </article>
-
-        <article class="settings-card">
-          <div class="setting-row stacked">
-            <div><strong>Gece rutini</strong><span>Varsayılan iş bitişi 01:30, eve dönüş + hazırlık sonrası yatış.</span></div>
-            <label>İş bitişi <input type="time" id="workEndInput" value="01:30" /></label>
-            <label>Eve dönüş + hazırlık <input type="number" id="windDownInput" min="10" max="120" value="45" /> dk</label>
-            <label>Güneşten önce uyan <input type="number" id="wakeOffsetInput" min="10" max="45" value="20" /> dk</label>
-            <button class="secondary-btn" id="saveRoutine">Rutini kaydet</button>
-          </div>
-        </article>
-
-        <article class="settings-card info-card">
-          <div class="setting-row stacked">
-            <div><strong>Öğle çevresi koruma aralığı</strong><span>Şekerlemeyi öğle vaktinin 15 dk öncesi ile 10 dk sonrasına koymuyoruz. Bu, uygulamadaki kişisel planlama kuralıdır; “bu saatte uyumak dini olarak yasaktır” iddiası değildir.</span></div>
-          </div>
-        </article>
+        <section class="page-heading"><div><div class="eyebrow">AYARLAR</div><h1>Ritmi kendine göre ayarla.</h1><p>Konum veya iş durumu değişince vakitler ve bildirim planı yeniden hesaplanır.</p></div></section>
+        <div class="settings-grid">
+          <article class="card settings-card"><div class="setting-row"><div><strong>Bugün iş var mı?</strong><span>Kapalıysa iş bildirimleri gelmez.</span></div><button class="switch on" id="workToggle" aria-pressed="true"><span></span></button></div></article>
+          <article class="card settings-card"><div class="setting-row stacked"><div class="setting-title"><strong>Konum</strong><span>İlçe veya bölge yazabilirsin. Örn. Etimesgut, Eryaman.</span></div><div class="location-fields"><label><span>İlçe / bölge</span><input id="districtInput" value="Etimesgut" placeholder="Etimesgut veya Eryaman" autocomplete="address-level2" /></label><label><span>İl</span><input id="cityInput" value="Ankara" placeholder="Ankara" autocomplete="address-level1" /></label></div><button class="secondary-btn" id="saveLocation">Konumu güncelle</button></div></article>
+          <article class="card settings-card"><div class="setting-row stacked"><div class="setting-title"><strong>Bildirimler</strong><span>iPhone’da ana ekrana eklenmiş PWA olarak açıp izin vermelisin.</span></div><button class="primary-btn" id="enableNotifications">Bildirimleri aç</button><button class="secondary-btn" id="testNotification">Test bildirimi gönder</button><div class="note" id="notificationNote">İzin durumu kontrol ediliyor…</div></div></article>
+          <article class="card settings-card"><div class="setting-row stacked"><div class="setting-title"><strong>Gece rutini</strong><span>İş bitişi ve eve dönüş süresine göre yatış otomatik hesaplanır.</span></div><label class="input-row">İş bitişi <input type="time" id="workEndInput" value="01:30" /></label><label class="input-row">Eve dönüş + hazırlık <span class="number-wrap"><input type="number" id="windDownInput" min="10" max="120" value="45" /> dk</span></label><label class="input-row">Güneşten önce uyan <span class="number-wrap"><input type="number" id="wakeOffsetInput" min="10" max="45" value="20" /> dk</span></label><button class="secondary-btn" id="saveRoutine">Rutini kaydet</button></div></article>
+          <article class="card settings-card info-card"><div class="setting-row stacked"><div class="setting-title"><strong>Öğle çevresi koruma aralığı</strong><span>Şekerleme öğle vaktinin 15 dakika öncesi ile 10 dakika sonrasına yerleştirilmez. Bu yalnızca kişisel planlama kuralıdır.</span></div></div></article>
+        </div>
       </section>
     </main>
 
     <nav class="bottom-nav" aria-label="Ana menü">
       <button class="nav-item active" data-nav="home"><svg viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1Z"/></svg><span>Bugün</span></button>
       <button class="nav-item" data-nav="focus"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2M9 2h6"/></svg><span>Odak</span></button>
+      <button class="nav-item" data-nav="activity"><svg viewBox="0 0 24 24"><circle cx="13" cy="4" r="2"/><path d="m10 22 1-6-3-3 3-5 4 2 3 4m-7 2 4 2 2 4M8 13l-4 2"/></svg><span>Hareket</span></button>
       <button class="nav-item" data-nav="summary"><svg viewBox="0 0 24 24"><path d="M5 20V10m7 10V4m7 16v-7"/></svg><span>Özet</span></button>
       <button class="nav-item" data-nav="settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2.8 2.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6v.2h-4V21a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1L4.2 17l.1-.1A1.7 1.7 0 0 0 4.6 15 1.7 1.7 0 0 0 3 14H2.8v-4H3a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9L4.2 7 7 4.2l.1.1A1.7 1.7 0 0 0 9 4.6 1.7 1.7 0 0 0 10 3V2.8h4V3a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1L19.8 7l-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.6 1h.2v4H21a1.7 1.7 0 0 0-1.6 1Z"/></svg><span>Ayarlar</span></button>
     </nav>
   </div>
   <div class="toast" id="toast"></div>
-  <script type="module" src="/app.js"></script>
+  <script src="/app.js" defer></script>
 </body>
 </html>
