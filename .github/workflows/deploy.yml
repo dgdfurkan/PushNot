@@ -28,6 +28,11 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Validate JavaScript syntax
+        run: |
+          node --check public/app.js
+          node --check src/worker.js
+
       - name: Verify Cloudflare credentials
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
