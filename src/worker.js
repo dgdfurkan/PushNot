@@ -119,12 +119,13 @@ function addMinutes(d, m) { return new Date(d.getTime() + m * 60000); }
 function safeEvent(e, kind = 'manual') { return { at: new Date(e.at).toISOString(), title: String(e.title || 'Vakit').slice(0, 80), body: String(e.body || '').slice(0, 180), tag: String(e.tag || 'vakit').slice(0, 80), kind }; }
 
 async function getPrayerTimes(env, { district = 'Etimesgut', city = 'Ankara', country = 'TR', date = trDateKey() }) {
-  const cacheKey = [district, city, country, date].join('|').toLocaleLowerCase('tr');
+  // v2 invalidates cached values that were calculated with school=1 (late Asr).
+  const cacheKey = ['v2-school0', district, city, country, date].join('|').toLocaleLowerCase('tr');
   const cached = await env.DB.prepare('SELECT payload FROM prayer_cache WHERE cache_key=?').bind(cacheKey).first();
   if (cached?.payload) return JSON.parse(cached.payload);
 
   const geoUrl = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(district)}&count=10&language=tr&format=json&countryCode=${encodeURIComponent(country)}`;
-  const geoRes = await fetch(geoUrl, { headers: { 'user-agent': 'VakitPWA/2.0' } });
+  const geoRes = await fetch(geoUrl, { headers: { 'user-agent': 'VakitPWA/2.1' } });
   if (!geoRes.ok) throw new Error('Konum servisine ulaşılamadı');
   const geo = await geoRes.json();
   const results = geo.results || [];
@@ -134,13 +135,19 @@ async function getPrayerTimes(env, { district = 'Etimesgut', city = 'Ankara', co
   if (!loc) throw new Error('Konum bulunamadı');
 
   const [y, m, d] = date.split('-');
-  const url = `https://api.aladhan.com/v1/timings/${d}-${m}-${y}?latitude=${loc.latitude}&longitude=${loc.longitude}&method=13&school=1&timezonestring=Europe%2FIstanbul`;
+  // method=13 is the Turkey/Diyanet calculation preset. school=0 uses the standard Asr shadow factor;
+  // school=1 was the source of the roughly one-hour-late Asr values seen in Ankara.
+  const url = `https://api.aladhan.com/v1/timings/${d}-${m}-${y}?latitude=${loc.latitude}&longitude=${loc.longitude}&method=13&school=0&timezonestring=Europe%2FIstanbul`;
   const r = await fetch(url);
   if (!r.ok) throw new Error('Namaz vakti servisine ulaşılamadı');
   const data = await r.json();
   if (data.code !== 200) throw new Error('Namaz vakti verisi alınamadı');
   const t = data.data.timings;
-  const payload = { source: 'AlAdhan · Diyanet yöntemi', location: { name: loc.name, admin1: loc.admin1, latitude: loc.latitude, longitude: loc.longitude }, timings: { Imsak: t.Imsak, Fajr: t.Fajr, Sunrise: t.Sunrise, Dhuhr: t.Dhuhr, Asr: t.Asr, Maghrib: t.Maghrib, Isha: t.Isha } };
+  const payload = {
+    source: 'AlAdhan · Türkiye/Diyanet yöntemi · düzeltilmiş ikindi',
+    location: { name: loc.name, admin1: loc.admin1, latitude: loc.latitude, longitude: loc.longitude },
+    timings: { Imsak: t.Imsak, Fajr: t.Fajr, Sunrise: t.Sunrise, Dhuhr: t.Dhuhr, Asr: t.Asr, Maghrib: t.Maghrib, Isha: t.Isha }
+  };
   await env.DB.prepare('INSERT OR REPLACE INTO prayer_cache(cache_key,payload,updated_at) VALUES(?,?,?)').bind(cacheKey, JSON.stringify(payload), new Date().toISOString()).run();
   return payload;
 }
@@ -251,7 +258,8 @@ async function api(request, env) {
     if (!body.subscription?.endpoint || !Array.isArray(body.events)) return j({ error: 'Eksik veri' }, 400);
     if (body.events.length > 40) return j({ error: 'Çok fazla olay' }, 400);
     const id = await saveClient(env, body.subscription);
-    const count = await upsertEvents(env, id, body.events, 'manual', !body.append);
+    const kind = body.kind === 'activity' ? 'activity' : 'manual';
+    const count = await upsertEvents(env, id, body.events, kind, !body.append);
     return j({ ok: true, count });
   }
 
