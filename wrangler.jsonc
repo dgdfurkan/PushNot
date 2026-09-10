@@ -3,12 +3,20 @@
   "name": "pushnot",
   "main": "src/worker.js",
   "compatibility_date": "2026-09-10",
+  "account_id": "ebd6de84831501a30b7aeb4adf719078",
   "assets": {
     "directory": "./public",
     "binding": "ASSETS",
     "not_found_handling": "single-page-application",
     "run_worker_first": true
   },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "pushnot-db",
+      "database_id": "21933181-9b2d-4859-af86-b975540243b9"
+    }
+  ],
   "triggers": {
     "crons": ["* * * * *"]
   }
