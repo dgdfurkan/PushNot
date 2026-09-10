@@ -54,4 +54,4 @@ npm run dev
 
 Cloudflare D1 binding'i yerel ortamda da gerektiği için gerçek API/push testi için Wrangler D1 ayarı gerekir.
 
-<!-- deploy-trigger: 2026-09-10 -->
+<!-- deploy-trigger: 2026-09-10-secret-ready -->
